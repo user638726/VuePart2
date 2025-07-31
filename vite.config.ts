@@ -12,7 +12,13 @@ export default defineConfig({
       plugins: [tailwind(), autoprefixer()],
     },
   },
-  plugins: [vue(), VueRouter()],
+  plugins: [ VueRouter(),vue({
+    template: {
+      compilerOptions: {
+        isCustomElement: (element) => element.startsWith('iconify-icon'),
+      },
+    },
+  })],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
