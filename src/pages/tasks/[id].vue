@@ -2,6 +2,6 @@
 
 <template>
   <div>
-    <h1>Home page</h1>
+    <h1>Task</h1>
   </div>
 </template>
