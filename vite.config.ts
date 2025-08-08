@@ -25,9 +25,15 @@ export default defineConfig({
   ], imports: [
     // presets
     'vue',
-    VueRouterAutoImports, ],
+    VueRouterAutoImports,
+    {
+       pinia:['defineStore','storeToRefs','acceptHMRUpdate']
+    }
+  ],
     dts: true,
-    viteOptimizeDeps: true,}),,vue({
+    viteOptimizeDeps: true,
+   dirs:['src/stores']
+  }),vue({
     template: {
       compilerOptions: {
         isCustomElement: (element) => element.startsWith('iconify-icon'),
