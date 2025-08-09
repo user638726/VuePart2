@@ -5,6 +5,11 @@ const route = useRoute('/projects/[slug]')
 
 const project = ref<Project | null>(null)
 
+
+watch(()=>project.value?.name,() => {
+  usePageStore().pageData.title=`Project: ${project.value?.name || ''}`
+})
+
 const getProjects = async () => {
   const { data, error } = await projectQuery(route.params.slug)
   if (error) {
@@ -16,24 +21,20 @@ await getProjects()
 </script>
 
 <template>
-  <Table>
+  <Table v-if="project">
     <TableRow>
       <TableHead> Name </TableHead>
-      <TableCell> Lorem ipsum dolor sit amet. </TableCell>
+      <TableCell>{{ project.name }} </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Description </TableHead>
       <TableCell>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad iure qui tempora ex nihil, ab
-        reprehenderit dolorem sunt veritatis perferendis? Repudiandae quis velit quasi ab natus quia
-        ratione voluptas deserunt labore sed distinctio nam fuga fugit vero voluptates placeat
-        aperiam, saepe excepturi eos harum consectetur doloremque perspiciatis nesciunt! Incidunt,
-        modi.
+        {{ project.description }}
       </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Status </TableHead>
-      <TableCell>In progress</TableCell>
+      <TableCell>{{project.status}}</TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Collaborators </TableHead>
@@ -41,8 +42,8 @@ await getProjects()
         <div class="flex">
           <Avatar
             class="-mr-4 transition-transform border border-primary hover:scale-110"
-            v-for="n in 5"
-            :key="n"
+            v-for="collab in project.collaborators"
+            :key="collab"
           >
             <RouterLink class="flex items-center justify-center w-full h-full" to="">
               <AvatarImage src="" alt="" />
@@ -54,7 +55,7 @@ await getProjects()
     </TableRow>
   </Table>
 
-  <section class="flex flex-col justify-between gap-5 mt-10 md:flex-row grow">
+  <section v-if="project" class="flex flex-col justify-between gap-5 mt-10 md:flex-row grow">
     <div class="flex-1">
       <h2>Tasks</h2>
       <div class="table-container">
@@ -67,7 +68,7 @@ await getProjects()
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="n in 5" :key="n">
+            <TableRow v-for="task in project.tasks" :key="task.id">
               <TableCell> Lorem ipsum dolor sit amet. </TableCell>
               <TableCell> In progress </TableCell>
               <TableCell> 22/08/2024 </TableCell>
