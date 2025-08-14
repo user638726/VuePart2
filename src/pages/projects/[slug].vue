@@ -5,15 +5,17 @@ const route = useRoute('/projects/[slug]')
 
 const project = ref<Project | null>(null)
 
-
-watch(()=>project.value?.name,() => {
-  usePageStore().pageData.title=`Project: ${project.value?.name || ''}`
-})
+watch(
+  () => project.value?.name,
+  () => {
+    usePageStore().pageData.title = `Project: ${project.value?.name || ''}`
+  },
+)
 
 const getProjects = async () => {
-  const { data, error } = await projectQuery(route.params.slug)
+  const { data, error, status } = await projectQuery(route.params.slug)
   if (error) {
-    console.log(error)
+    useErrorStore().setError({ error, customCode: status })
   }
   project.value = data
 }
@@ -34,7 +36,7 @@ await getProjects()
     </TableRow>
     <TableRow>
       <TableHead> Status </TableHead>
-      <TableCell>{{project.status}}</TableCell>
+      <TableCell>{{ project.status }}</TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Collaborators </TableHead>
