@@ -11,6 +11,7 @@ const signin = async () => {
   const isLoggedIn = await login(formData.value)
   if(isLoggedIn) router.push('/')
 }
+usePageStore().pageData.title = ''
 </script>
 
 <template>
