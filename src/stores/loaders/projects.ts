@@ -1,38 +1,76 @@
-import type { Projects } from "@/utils/supaQueries"
-import {projectsQuery} from "@/utils/supaQueries"
-import {useMemoize} from "@vueuse/core"
+import { projectQuery, projectsQuery } from '@/utils/supaQueries'
+import { useMemoize } from '@vueuse/core'
+import type { Project, Projects } from '@/utils/supaQueries'
 
-export const useProjectsStore = defineStore('projects-store',()=>{
-const projects = ref<Projects>([])
-const loadProjects = useMemoize(async(key:string)=>await projectsQuery)
-const validateCache = () =>{
-if(projects.value?.length) {
-    projectsQuery.then(({ data, error }) => {
-      if (JSON.stringify(projects.value) === JSON.stringify(data)) {
+export const useProjectsStore = defineStore('projects-store', () => {
+  const projects = ref<Projects | null>(null)
+  const project = ref<Project | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const loadProjects = useMemoize(async (key: string) => await projectsQuery)
+  const loadProject = useMemoize(
+    async (slug: string) => await projectQuery(slug)
+  )
+interface ValidateCacheParams {
+    ref:typeof projects | typeof project
+    query:typeof projectsQuery | typeof projectQuery
+    key:string
+    loaderFn:typeof loadProjects | typeof loadProject
+}
+  const validateCache = ({
+    ref,
+    query,
+    key,
+    loaderFn
+  }:
+    ValidateCacheParams
+  ) => {
+    if (ref.value) {
+      const finalQuery = typeof query === 'function' ? query(key) : query
 
-        return
-      } else {
-            loadProjects.delete('projects')
-            if(!error && data) projects.value = data
-      }
+      finalQuery.then(({ data, error }) => {
+        if (JSON.stringify(ref.value) === JSON.stringify(data)) {
+          return
+        } else {
+          loaderFn.delete(key)
+          if (!error && data) ref.value = data
+        }
+      })
+    }
+  }
+
+  const getProjects = async () => {
+    const { data, error, status } = await loadProjects('projects')
+
+    if (error) useErrorStore().setError({ error, customCode: status })
+
+    if (data) projects.value = data
+
+    validateCache({
+      ref: projects,
+      query: projectsQuery,
+      key: 'projects',
+      loaderFn: loadProjects
     })
   }
 
-}
+  const getProject = async (slug: string) => {
+    const { data, error, status } = await loadProject(slug)
 
-const getProjects = async () => {
+    if (error) useErrorStore().setError({ error, customCode: status })
 
-
-  const { data, error, status } = await loadProjects('projects')
-  if (error) useErrorStore().setError({ error, customCode: status })
-
-  if(data)projects.value = data
-  validateCache()
+    if (data) project.value = data
+    validateCache({
+      ref: project,
+      query: projectQuery,
+      key: slug,
+      loaderFn: loadProject
+    })
   }
 
-    return{
-       projects,
-       getProjects
-    }
-
+  return {
+    projects,
+    getProjects,
+    getProject,
+    project
+  }
 })
