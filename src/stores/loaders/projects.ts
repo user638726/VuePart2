@@ -1,4 +1,4 @@
-import { projectQuery, projectsQuery } from '@/utils/supaQueries'
+import { projectQuery, projectsQuery, updateProjectQuery } from '@/utils/supaQueries'
 import { useMemoize } from '@vueuse/core'
 import type { Project, Projects } from '@/utils/supaQueries'
 
@@ -39,6 +39,8 @@ interface ValidateCacheParams {
   }
 
   const getProjects = async () => {
+
+     projects.value = null
     const { data, error, status } = await loadProjects('projects')
 
     if (error) useErrorStore().setError({ error, customCode: status })
@@ -54,6 +56,8 @@ interface ValidateCacheParams {
   }
 
   const getProject = async (slug: string) => {
+
+    project.value = null
     const { data, error, status } = await loadProject(slug)
 
     if (error) useErrorStore().setError({ error, customCode: status })
@@ -67,10 +71,20 @@ interface ValidateCacheParams {
     })
   }
 
+const updateProject = async () =>{
+if(!project.value) return
+//eslint-disable-next-line @typescript-eslint/no-unused-vars  
+const { tasks,id,...projectProperties }= project.value
+
+await updateProjectQuery(projectProperties,project.value.id)
+
+}
+
   return {
     projects,
     getProjects,
     getProject,
-    project
+    project,
+    updateProject
   }
 })
