@@ -3,13 +3,13 @@ const { slug } = useRoute('/projects/[slug]').params
 
 const projectsLoader = useProjectsStore()
 const { project } = storeToRefs(projectsLoader)
-const { getProject,updateProject } = projectsLoader
+const { getProject, updateProject } = projectsLoader
 
 watch(
   () => project.value?.name,
   () => {
     usePageStore().pageData.title = `Project: ${project.value?.name || ''}`
-  }
+  },
 )
 
 await getProject(slug)
@@ -20,7 +20,7 @@ await getProject(slug)
     <TableRow>
       <TableHead> Name </TableHead>
       <TableCell>
-         <AppInPlaceEditText v-model="project.name" @commit="updateProject"/>
+        <AppInPlaceEditText v-model="project.name" @commit="updateProject" />
       </TableCell>
     </TableRow>
     <TableRow>
@@ -32,7 +32,7 @@ await getProject(slug)
     <TableRow>
       <TableHead> Status </TableHead>
       <TableCell>
-      <AppInPlaceEditStatus v-model="project.status"/>
+        <AppInPlaceEditStatus v-model="project.status" @commit="updateProject" />
       </TableCell>
     </TableRow>
     <TableRow>
@@ -44,10 +44,7 @@ await getProject(slug)
             v-for="collab in project.collaborators"
             :key="collab"
           >
-            <RouterLink
-              class="flex items-center justify-center w-full h-full"
-              to=""
-            >
+            <RouterLink class="flex items-center justify-center w-full h-full" to="">
               <AvatarImage src="" alt="" />
               <AvatarFallback> </AvatarFallback>
             </RouterLink>
@@ -57,10 +54,7 @@ await getProject(slug)
     </TableRow>
   </Table>
 
-  <section
-    v-if="project"
-    class="flex flex-col justify-between gap-5 mt-10 md:flex-row grow"
-  >
+  <section v-if="project" class="flex flex-col justify-between gap-5 mt-10 md:flex-row grow">
     <div class="flex-1">
       <h2>Tasks</h2>
       <div class="table-container">
