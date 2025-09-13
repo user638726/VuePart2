@@ -26,12 +26,14 @@ await getProject(slug)
     <TableRow>
       <TableHead> Description </TableHead>
       <TableCell>
-        {{ project.description }}
+        <AppInPlaceEditText v-model="project.description" @commit="updateProject" />
       </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Status </TableHead>
-      <TableCell>{{ project.status }}</TableCell>
+      <TableCell>
+      <AppInPlaceEditStatus v-model="project.status"/>
+      </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Collaborators </TableHead>
@@ -107,14 +109,21 @@ await getProject(slug)
 
 <style>
 th {
-  @apply w-[100px];
+  width: 100px;
 }
 
 h2 {
-  @apply mb-4 text-lg font-semibold w-fit;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  width: fit-content;
 }
 
 .table-container {
-  @apply overflow-hidden overflow-y-auto rounded-md bg-slate-900 h-80;
+  overflow: hidden;
+  overflow-y: auto;
+  border-radius: 0.375rem;
+  background-color: #0f172a;
+  height: 20rem;
 }
 </style>
