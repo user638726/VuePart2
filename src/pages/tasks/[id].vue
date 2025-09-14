@@ -1,64 +1,77 @@
 <script setup lang="ts">
-import { taskQuery, type Task } from '@/utils/supaQueries.ts'
+const { id } = useRoute('/tasks/[id]').params
 
-const route = useRoute('/tasks/[id]')
-const task = ref<Task | null>(null)
+const tasksLoader = useTasksStore()
+const { task } = storeToRefs(tasksLoader)
+const { getTask, updateTask } = tasksLoader
 
 watch(
   () => task.value?.name,
   () => {
     usePageStore().pageData.title = `Task: ${task.value?.name || ''}`
-  },
+  }
 )
 
-const getTask = async () => {
-  const { data, error, status } = await taskQuery(Number(route.params.id))
-  if (error) useErrorStore().setError({ error, customCode: status })
+await getTask(id)
 
-  task.value = data
-}
-await getTask()
+const { getProfilesByIds } = useCollabs()
+
+const collabs = task.value?.collaborators
+  ? await getProfilesByIds(task.value?.collaborators)
+  : []
 </script>
 
 <template>
   <Table v-if="task">
     <TableRow>
       <TableHead> Name </TableHead>
-      <TableCell> {{ task.name }} </TableCell>
+      <TableCell>
+        <AppInPlaceEditText v-model="task.name" @commit="updateTask" />
+      </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Description </TableHead>
       <TableCell>
-        {{ task.description }}
+        <AppInPlaceEditTextarea
+          class="h-20"
+          v-model="task.description"
+          @commit="updateTask"
+        />
       </TableCell>
     </TableRow>
     <TableRow>
-      <TableHead> Assignee </TableHead>
-      <TableCell>Lorem ipsum</TableCell>
-    </TableRow>
-    <TableRow>
       <TableHead> Project </TableHead>
-      <TableCell>{{ task.projects?.name }} </TableCell>
+      <TableCell>{{ task.projects?.name }}</TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Status </TableHead>
-      <TableCell>{{ task.status }}</TableCell>
+      <TableCell>
+        <AppInPlaceEditStatus v-model="task.status" @commit="updateTask" />
+      </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Collaborators </TableHead>
       <TableCell>
-        <div class="flex">
-          <Avatar
-            class="-mr-4 transition-transform border border-primary hover:scale-110"
-            v-for="collab in task.collaborators"
-            :key="collab"
-          >
-            <RouterLink class="flex items-center justify-center w-full h-full" to="">
-              <AvatarImage src="" alt="" />
-              <AvatarFallback> </AvatarFallback>
-            </RouterLink>
-          </Avatar>
-        </div>
+        <TableCell>
+          <div class="flex">
+            <Avatar
+              class="-mr-4 transition-transform border border-primary hover:scale-110"
+              v-for="collab in collabs"
+              :key="collab.id"
+            >
+              <RouterLink
+                class="flex items-center justify-center w-full h-full"
+                :to="{
+                  name: '/users/[username]',
+                  params: { username: collab.username }
+                }"
+              >
+                <AvatarImage :src="collab.avatar_url || ''" alt="" />
+                <AvatarFallback> </AvatarFallback>
+              </RouterLink>
+            </Avatar>
+          </div>
+        </TableCell>
       </TableCell>
     </TableRow>
     <TableRow class="hover:bg-transparent">
@@ -92,3 +105,24 @@ await getTask()
     </TableRow>
   </Table>
 </template>
+
+<style>
+th {
+  width: 100px;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.table-container {
+  overflow: hidden;
+  overflow-y: auto;
+  border-radius: 0.375rem; /* rounded-md */
+  background-color: #0f172a; /* bg-slate-900 */
+  height: 20rem; /* h-80 */
+}
+</style>

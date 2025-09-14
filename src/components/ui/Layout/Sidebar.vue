@@ -1,50 +1,46 @@
 <script setup lang="ts">
-
+const { profile } = storeToRefs(useAuthStore())
 
 const links = [
   {
     title: 'Dashboard',
     to: '/',
-    icon: 'lucide:house',
+    icon: 'lucide:house'
   },
   {
-    title: 'projects',
+    title: 'Projects',
     to: '/projects',
-    icon: 'lucide:building-2',
+    icon: 'lucide:building-2'
   },
   {
-    title: 'My tasks',
+    title: 'My Tasks',
     to: '/tasks',
-    icon: 'lucide:badge-check',
-  },
+    icon: 'lucide:badge-check'
+  }
 ]
 
-const accountlinks = [
-  {
-    title: 'Profile',
-    to: '/profile',
-    icon: 'lucide:user',
-  },
-  {
-    title: 'Settings',
-    to: '/settings',
-    icon: 'lucide:settings',
-  },
+const accountLinks = computed(() => {
+  return [
+    {
+      title: 'Profile',
+      to: `/users/${profile.value?.username}`,
+      icon: 'lucide:user'
+    },
+    {
+      title: 'Sign Out',
+      icon: 'lucide:log-out'
+    }
+  ]
+})
 
-  {
-    title: 'Sign out',
-    icon: 'lucide:log-out',
-  },
-]
 const router = useRouter()
 
-const executeAction = async (linkTitle:string)=>{
-  if(linkTitle ==='Sign out'){
-    const {logout} = await import('@/utils/supaAuth.ts')
+const executeAction = async (linkTitle: string) => {
+  if (linkTitle === 'Sign Out') {
+    const { logout } = await import('@/utils/supaAuth')
     const isLoggedOut = await logout()
-    if(isLoggedOut){
-      router.push('/login')
-    }
+
+    if (isLoggedOut) router.push('/login')
   }
 }
 </script>
@@ -53,7 +49,9 @@ const executeAction = async (linkTitle:string)=>{
   <aside
     class="flex flex-col h-screen gap-2 border-r fixed bg-muted/40 lg:w-52 w-16 transition-[width]"
   >
-    <div class="flex items-center justify-between h-16 gap-1 px-2 border-b lg:px-4 shrink-0">
+    <div
+      class="flex items-center justify-between h-16 gap-1 px-2 border-b lg:px-4 shrink-0"
+    >
       <Button variant="outline" size="icon" class="w-8 h-8">
         <iconify-icon icon="lucide:menu"></iconify-icon>
       </Button>
@@ -69,7 +67,7 @@ const executeAction = async (linkTitle:string)=>{
       </div>
 
       <div class="py-3 text-center border-y bg-background">
-        <SidebarLinks :links="accountlinks" @actionClicked="executeAction"/>
+        <SidebarLinks :links="accountLinks" @actionClicked="executeAction" />
       </div>
     </nav>
   </aside>
