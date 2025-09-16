@@ -1,42 +1,55 @@
 <script setup lang="ts">
+import { menuKey, type MenuInjectionOptions } from '@/utils/injectionKeys';
+
 interface LinkProp {
   title: string
   to?: string
   icon: string
 }
 
-const props = defineProps<{
+defineProps<{
   links: LinkProp[]
 }>()
 
 const emits = defineEmits<{
-  actionClicked:[string]
+  actionClicked: [string]
 }>()
 
-
-const emitActionClicked = (linkTitle:string)=>{
-  emits('actionClicked',linkTitle)
+const emitActionClicked = (linkTitle: string) => {
+  emits('actionClicked', linkTitle)
 }
+const { menuOpen } = inject(menuKey) as MenuInjectionOptions
 </script>
 
 <template>
   <template v-for="link in links" :key="link.title">
-  <RouterLink
-    v-if="link.to"
-    exactActiveClass="text-primary bg-muted"
-    :to="link.to"
-    class="flex items-center justify-center gap-3 px-4 py-2 mx-2 transition-colors rounded-lg hover:text-primary lg:justify-normal text-muted-foreground"
-  >
-    <iconify-icon :icon="link.icon"></iconify-icon>
-    <span class="hidden lg:block text-nowrap">{{ link.title }}</span>
-  </RouterLink>
-  <div
-    v-else
-    class="flex items-center justify-center gap-3 px-4 py-2 mx-2 transition-colors rounded-lg cursor-pointer hover:text-primary lg:justify-normal text-muted-foreground"
-    @click="emitActionClicked(link.title)"/>
+    <RouterLink
+      v-if="link.to"
+      exactActiveClass="text-primary bg-muted"
+      :to="link.to"
+      class="flex items-center gap-3 px-4 py-2 mx-2 transition-colors rounded-lg hover:text-primary text-muted-foreground"
+      :class="{'justify-normal':menuOpen, 'justify-center':!menuOpen}"
+    >
+      <iconify-icon :icon="link.icon"></iconify-icon>
+      <span class="text-nowrap" :class="{ block: menuOpen, hidden: !menuOpen }">{{
+        link.title
+      }}</span>
+    </RouterLink>
+
+    <div
+      v-else
+      class="flex items-center gap-3 px-4 py-2 mx-2 transition-colors rounded-lg cursor-pointer hover:text-primary text-muted-foreground"
+      @click="emitActionClicked(link.title)"
+      :class="{'justify-normal':menuOpen, 'justify-center':!menuOpen}"
+    >
+      <iconify-icon :icon="link.icon"></iconify-icon>
+      <span class="text-nowrap" :class="{ block: menuOpen, hidden: !menuOpen }">{{
+        link.title
+      }}</span>
+    </div>
   </template>
-
-
 </template>
 
-
+<style scoped>
+/* The nav-link class is now empty since Tailwind classes are used directly in the template */
+</style>
