@@ -12,6 +12,15 @@ await getGroupedCollabs(projects.value?? [])
 
 
 const columnWithCollabs = columns(groupedCollabs)
+useMeta({
+  title:'Projects | Pulse',
+  description:{
+    name:'description',
+    content:'Pulse is a ...'
+  }
+})
+
+
 </script>
 
 <template>
